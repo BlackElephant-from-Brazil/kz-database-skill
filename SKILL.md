@@ -28,7 +28,7 @@ Complete reference for the KZ Serviços Supabase database. Use this skill whenev
 
 ## Database Overview
 
-**22 tables** across these domains:
+**23 tables** across these domains:
 
 | Domain | Tables |
 |--------|--------|
@@ -37,7 +37,7 @@ Complete reference for the KZ Serviços Supabase database. Use this skill whenev
 | Providers | `provider_profiles`, `provider_category_services` |
 | Drivers | `driver_profiles`, `vehicles`, `vehicle_photos`, `driver_locations` |
 | Addresses | `addresses` |
-| Trips | `trips`, `trip_children`, `trip_luggage`, `trip_status_history` |
+| Trips | `trips`, `trip_children`, `trip_luggage`, `trip_status_history`, `trip_driver_candidates` |
 | Service Requests | `service_requests`, `service_request_status_history` |
 | Chat | `chat_rooms`, `chat_messages` |
 | Notifications | `notifications`, `user_devices` |
@@ -73,7 +73,8 @@ driver_profiles ──1:1──► driver_locations (driver_profile_id)
 
 users ──1:N──► trips (client_id)
 driver_profiles ──1:N──► trips (driver_profile_id)
-trips ──1:N──► trip_children, trip_luggage, trip_status_history
+trips ──1:N──► trip_children, trip_luggage, trip_status_history, trip_driver_candidates
+driver_profiles ──1:N──► trip_driver_candidates (driver_profile_id)
 trips ──1:1──► addresses (pickup_address_id, dropoff_address_id)
 
 users ──1:N──► service_requests (client_id)

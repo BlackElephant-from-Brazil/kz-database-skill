@@ -1,6 +1,6 @@
 # Schema Reference — KZ Serviços Database
 
-Complete column-level reference for all 22 tables.
+Complete column-level reference for all 23 tables.
 
 ## users
 
@@ -237,6 +237,26 @@ Histórico de mudanças de status de viagens (auto-registrado via trigger).
 | `created_at` | TIMESTAMPTZ | DEFAULT now() |
 
 **Indexes**: `idx_trip_status_history_trip_id`, `idx_trip_status_history_created_at`
+
+---
+
+## trip_driver_candidates
+
+Candidatos a motorista para viagens no status `searching_drivers`. Permite indicar múltiplos motoristas antes da confirmação final.
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `id` | UUID | PK, DEFAULT gen_random_uuid() |
+| `trip_id` | UUID | FK → trips, NOT NULL, ON DELETE CASCADE |
+| `driver_profile_id` | UUID | FK → driver_profiles, NOT NULL, ON DELETE CASCADE |
+| `status` | VARCHAR(20) | NOT NULL, DEFAULT 'pending' — valores: pending, accepted, rejected |
+| `invited_at` | TIMESTAMPTZ | DEFAULT now() |
+| `responded_at` | TIMESTAMPTZ | |
+| `observations` | TEXT | |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() |
+
+**Constraints**: `UNIQUE(trip_id, driver_profile_id)`
+**Indexes**: `idx_trip_driver_candidates_trip_id`, `idx_trip_driver_candidates_driver_profile_id`
 
 ---
 

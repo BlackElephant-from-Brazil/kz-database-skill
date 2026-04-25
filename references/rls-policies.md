@@ -80,6 +80,14 @@ Policies follow the parent `trips` table — access based on trip ownership.
 | `trip_status_history_select` | SELECT | Trip participants or admin |
 | `trip_status_history_insert` | INSERT | All authenticated (trigger-driven) |
 
+### trip_driver_candidates
+| Policy | Operation | Who |
+|--------|-----------|-----|
+| `trip_driver_candidates_select` | SELECT | Trip participants or admin |
+| `trip_driver_candidates_insert` | INSERT | Admin only |
+| `trip_driver_candidates_update` | UPDATE | Own driver or admin |
+| `trip_driver_candidates_delete` | DELETE | Admin only |
+
 ### service_requests
 | Policy | Operation | Who |
 |--------|-----------|-----|
