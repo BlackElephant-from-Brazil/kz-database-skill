@@ -59,6 +59,7 @@ Complete reference for the KZ Serviços Supabase database. Use this skill whenev
 | `platform_type` | `android`, `ios`, `web` |
 | `message_type` | `text`, `image`, `audio`, `file`, `location` |
 | `photo_type` | `front`, `back`, `interior`, `side_left`, `side_right` |
+| `trip_status_candidate` | `pending`, `accepted`, `rejected` |
 
 ## Key Relationships (ER Summary)
 
@@ -155,7 +156,7 @@ Migrations are in `supabase/migrations/` using the naming pattern:
 ```
 YYYYMMDDHHMMSS_description.sql
 ```
-Current range: `20260410120000` to `20260410120026` (27 migrations).
+Current range: `20260410120000` to `20260428120000` (34 migrations + `seed_service_categories.sql`).
 
 When creating new migrations:
 1. Use the next sequential timestamp

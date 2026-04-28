@@ -11,6 +11,25 @@ RETURNS user_role AS $$
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 ```
 
+### `public.is_trip_candidate_for_current_user(p_trip_id uuid)`
+Returns `true` if `auth.uid()` is a registered candidate for the given trip.
+Used by `trips_select` to allow candidates to see the parent trip without
+recursing into `trip_driver_candidates_select` (SECURITY DEFINER bypasses RLS).
+```sql
+CREATE OR REPLACE FUNCTION public.is_trip_candidate_for_current_user(p_trip_id uuid)
+RETURNS boolean
+LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.trip_driver_candidates tdc
+    JOIN public.driver_profiles dp ON dp.id = tdc.driver_profile_id
+    JOIN public.provider_profiles pp ON pp.id = dp.provider_profile_id
+    WHERE tdc.trip_id = p_trip_id
+      AND pp.user_id = auth.uid()
+  );
+$$;
+```
+
 ### `set_address_location()`
 Auto-populates `addresses.location` (GEOGRAPHY) from `latitude`/`longitude`.
 ```sql
@@ -24,13 +43,24 @@ Auto-populates `driver_locations.location` (GEOGRAPHY) from `latitude`/`longitud
 
 ### `log_trip_status_change()`
 Records trip status changes to `trip_status_history`. Uses `auth.uid()` or `client_id` as `changed_by`.
+Reads optional `app.status_observation` session config to attach a justification (e.g. set by `reject_trip` RPC) — keeps the trigger as the single source of inserts into `trip_status_history`.
 ```sql
-IF OLD.status IS DISTINCT FROM NEW.status THEN
-  INSERT INTO trip_status_history (trip_id, from_status, to_status, changed_by)
-  VALUES (NEW.id, OLD.status::VARCHAR, NEW.status::VARCHAR, COALESCE(auth.uid(), NEW.client_id));
-END IF;
+DECLARE
+  v_observation TEXT;
+BEGIN
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    v_observation := NULLIF(current_setting('app.status_observation', true), '');
+    INSERT INTO trip_status_history (trip_id, from_status, to_status, changed_by, observations)
+    VALUES (NEW.id, OLD.status::VARCHAR, NEW.status::VARCHAR, COALESCE(auth.uid(), NEW.client_id), v_observation);
+  END IF;
+  RETURN NEW;
+END;
 ```
 **Trigger**: `trg_log_trip_status_change` — AFTER UPDATE OF status ON trips
+
+### `reject_trip(p_trip_id UUID, p_reason TEXT DEFAULT NULL)` (RPC)
+Recusa uma viagem em `under_review` retornando-a para `open` e registra a justificativa numa única transação. Define `app.status_observation` via `set_config(..., true)` (escopo local) e atualiza `trips.status`, deixando o trigger `log_trip_status_change` inserir uma única linha em `trip_status_history` com `observations` preenchido.
+Granted to `authenticated`.
 
 ### `log_service_request_status_change()`
 Records service request status changes to `service_request_status_history`.

@@ -180,6 +180,7 @@ Tabela principal de viagens (transporte de passageiros).
 | `estimated_price` | DECIMAL(10,2) | |
 | `final_price` | DECIMAL(10,2) | |
 | `is_paid` | BOOLEAN | DEFAULT false |
+| `is_driver_paied` | BOOLEAN | DEFAULT false |
 | `payment_method` | payment_method | |
 | `payment_date` | TIMESTAMPTZ | |
 | `started_at` | TIMESTAMPTZ | |
@@ -249,7 +250,7 @@ Candidatos a motorista para viagens no status `searching_drivers`. Permite indic
 | `id` | UUID | PK, DEFAULT gen_random_uuid() |
 | `trip_id` | UUID | FK → trips, NOT NULL, ON DELETE CASCADE |
 | `driver_profile_id` | UUID | FK → driver_profiles, NOT NULL, ON DELETE CASCADE |
-| `status` | VARCHAR(20) | NOT NULL, DEFAULT 'pending' — valores: pending, accepted, rejected |
+| `status` | trip_status_candidate | NOT NULL, DEFAULT 'pending' — valores: pending, accepted, rejected |
 | `invited_at` | TIMESTAMPTZ | DEFAULT now() |
 | `responded_at` | TIMESTAMPTZ | |
 | `observations` | TEXT | |
